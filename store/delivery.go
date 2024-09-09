@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"log"
 
 	"github.com/Ruthvik10/targeting-engine/model"
 	"go.mongodb.org/mongo-driver/bson"
@@ -51,6 +52,7 @@ func (store *Delivery) GetCampaigns(ctx context.Context, in *model.Delivery) ([]
 
 	cursor, err := store.collection.Find(ctx, filter, findOptions)
 	if err != nil {
+		log.Printf("Error fetching the campaigns from the database: %v", err)
 		return nil, err
 	}
 	var campaigns []*model.Campaign
@@ -59,6 +61,7 @@ func (store *Delivery) GetCampaigns(ctx context.Context, in *model.Delivery) ([]
 	for cursor.Next(ctx) {
 		var campaign model.Campaign
 		if err := cursor.Decode(&campaign); err != nil {
+			log.Printf("Error decoding the campaign cursor values: %v", err)
 			return nil, err
 		}
 		campaigns = append(campaigns, &campaign)
@@ -66,6 +69,7 @@ func (store *Delivery) GetCampaigns(ctx context.Context, in *model.Delivery) ([]
 
 	// Check if any error occurred during iteration
 	if err := cursor.Err(); err != nil {
+		log.Printf("Error fetching the campaigns from the database: %v", err)
 		return nil, err
 	}
 

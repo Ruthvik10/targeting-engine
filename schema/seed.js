@@ -59,4 +59,19 @@ db.campaigns.insertMany([
       excludeCountry: [],
     },
   },
+  {
+    _id: ObjectId("64f1e8a1c2a87e2955b3b325"),
+    name: "Temple Run",
+    image: "https://cdn.templerun.com/image4",
+    cta: "Play Now",
+    status: "ACTIVE",
+    targeting: {
+      includeApp: ["com.king.templerun", "com.gametion.ludokinggame"],
+      excludeApp: [],
+      includeOS: ["iOS", "Android"],
+      excludeOS: [],
+      includeCountry: ["UK", "US"],
+      excludeCountry: [],
+    },
+  },
 ]);

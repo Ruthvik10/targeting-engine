@@ -16,15 +16,14 @@ var deliveryStore *Delivery
 
 func TestMain(m *testing.M) {
 
-	cfg, err := config.Load("./")
+	cfg, err := config.Load("../")
 	if err != nil {
 		log.Fatalf("Error loading the config: %v", err)
 	}
 	ctx, cancel2 := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel2()
-	// It would be a good idea to connect to test db for testing.
-	// In this project, we are using the same db for test and dev.
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.DBURI))
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.TestDBSource))
 	if err != nil {
 		log.Fatalf("Error connecting to the database instance: %v", err)
 	}

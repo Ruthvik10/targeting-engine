@@ -40,20 +40,25 @@ func main() {
 		log.Fatal("Could not ping MongoDB: ", err)
 	}
 
-	log.Println("Successfully connected to the database instance")
+	log.Println("Successfully connected to the database instance.")
 
 	redisClient := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
+		Addr: cfg.RedisURI,
 	})
+
+	log.Println("Connected to the cache.")
 
 	campaignColl := client.Database("campaigns_db").Collection("campaigns")
 
+	cacheExpiry := time.Duration(cfg.RedisCacheExpr) * time.Second
 	deliveryCache := cache.NewDelivery(redisClient)
 	deliveryStore := store.NewDelivery(campaignColl)
-	deliveryHandler := api.NewDeliveryHandler(deliveryStore, deliveryCache)
+	deliveryHandler := api.NewDeliveryHandler(deliveryStore, deliveryCache, cacheExpiry)
 
 	mux := http.NewServeMux()
 	deliveryHandler.RegisterRoutes(mux)
+
+	log.Println("Starting the http server on: " + cfg.ServerAddr)
 	if err := http.ListenAndServe(cfg.ServerAddr, mux); err != nil {
 		log.Fatalf("Unable to start the http server: %v", err)
 	}

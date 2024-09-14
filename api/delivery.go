@@ -22,12 +22,13 @@ type cache interface {
 }
 
 type DeliveryHandler struct {
-	store store
-	cache cache
+	store       store
+	cache       cache
+	cacheExpiry time.Duration
 }
 
-func NewDeliveryHandler(store store, cache cache) *DeliveryHandler {
-	return &DeliveryHandler{store: store, cache: cache}
+func NewDeliveryHandler(store store, cache cache, cacheExpiry time.Duration) *DeliveryHandler {
+	return &DeliveryHandler{store: store, cache: cache, cacheExpiry: cacheExpiry}
 }
 
 func (h *DeliveryHandler) RegisterRoutes(mux *http.ServeMux) {
@@ -88,7 +89,7 @@ func (h *DeliveryHandler) DeliverCampaign(w http.ResponseWriter, r *http.Request
 		// Store the fetched data in cache.
 		// If there is any error, do not throw the error to the client since the requested is already available from the database.
 		bytes, _ := json.Marshal(campaigns)
-		err = h.cache.SetCampaign(context.Background(), cacheKey, string(bytes), 10*time.Second)
+		err = h.cache.SetCampaign(context.Background(), cacheKey, string(bytes), h.cacheExpiry)
 		if err == nil {
 			log.Printf("Added value for the key: (%s) to the cache\n", cacheKey)
 		}

@@ -1,6 +1,18 @@
 version: '3.9'
 
 services:
+  mongodb:
+    image: mongo # MongoDB alpine image
+    container_name: mongo-test-container
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: adminpassword
+      MONGO_INITDB_DATABASE: campaigns_db
+    volumes:
+      - mongo-data:/data/db  # Persist MongoDB data
+    ports:
+      - "27017:27017"  # Expose MongoDB port
   redis:
     image: "redis:alpine"
     container_name: "redis-cache"
@@ -13,5 +25,7 @@ services:
 
 
 volumes:
+  mongo-data:
+    driver: local
   redis-data:
     driver: local

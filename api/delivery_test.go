@@ -28,7 +28,7 @@ func TestDeliverCampaign(t *testing.T) {
 	store := mockStore.NewDeliveryStoreMock()
 	cache := mockCache.NewDeliveryCacheMock()
 
-	handler := NewDeliveryHandler(store, cache)
+	handler := NewDeliveryHandler(store, cache, 5*time.Second)
 
 	t.Run("should return 400 when app param is missing", func(t *testing.T) {
 		req, _ := http.NewRequest(http.MethodGet, "/delivery?country=US&os=Android", nil)

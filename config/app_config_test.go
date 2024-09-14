@@ -10,8 +10,7 @@ import (
 func TestLoad(t *testing.T) {
 	t.Run("should load valid config from file", func(t *testing.T) {
 		// Create a temporary directory for the config file
-		tmpDir := os.TempDir()
-		defer os.RemoveAll(tmpDir)
+		tmpDir := t.TempDir()
 
 		// Create a temporary .env file with the config
 		configContent := []byte("MONGO_URI=mongodb://localhost:27017\nSERVER_ADDR=localhost:8080")

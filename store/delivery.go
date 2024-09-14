@@ -14,36 +14,36 @@ type Delivery struct {
 	collection *mongo.Collection
 }
 
-func NewDeliveryStore(coll *mongo.Collection) *Delivery {
+func NewDelivery(coll *mongo.Collection) *Delivery {
 	return &Delivery{collection: coll}
 }
 
-func (store *Delivery) GetCampaigns(ctx context.Context, in *model.Delivery) ([]*model.Campaign, error) {
+func (store *Delivery) GetCampaigns(ctx context.Context, delivery *model.Delivery) ([]*model.Campaign, error) {
 	filter := bson.M{
 		"status": "ACTIVE",
 		"$and": []bson.M{
 			{
 				"$or": []bson.M{
-					{"targeting.includeOS": in.OS},
+					{"targeting.includeOS": delivery.OS},
 					{"targeting.includeOS": bson.M{"$size": 0}},
 				},
 			},
 			{
 				"$or": []bson.M{
-					{"targeting.includeCountry": in.Country},
+					{"targeting.includeCountry": delivery.Country},
 					{"targeting.includeCountry": bson.M{"$size": 0}},
 				},
 			},
 			{
 				"$or": []bson.M{
-					{"targeting.includeApp": in.AppID},
+					{"targeting.includeApp": delivery.AppID},
 					{"targeting.includeApp": bson.M{"$size": 0}},
 				},
 			},
 		},
-		"targeting.excludeOS":      bson.M{"$nin": []string{in.OS}},
-		"targeting.excludeCountry": bson.M{"$nin": []string{in.Country}},
-		"targeting.excludeApp":     bson.M{"$nin": []string{in.AppID}},
+		"targeting.excludeOS":      bson.M{"$nin": []string{delivery.OS}},
+		"targeting.excludeCountry": bson.M{"$nin": []string{delivery.Country}},
+		"targeting.excludeApp":     bson.M{"$nin": []string{delivery.AppID}},
 	}
 
 	findOptions := &options.FindOptions{
@@ -72,6 +72,5 @@ func (store *Delivery) GetCampaigns(ctx context.Context, in *model.Delivery) ([]
 		log.Printf("Error fetching the campaigns from the database: %v", err)
 		return nil, err
 	}
-
 	return campaigns, nil
 }

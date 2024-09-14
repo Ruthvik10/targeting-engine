@@ -1,29 +1,29 @@
-package main
+package store
 
 import (
 	"context"
 	"log"
-	"net/http"
+	"os"
+	"testing"
 	"time"
 
-	"github.com/Ruthvik10/targeting-engine/api"
-	"github.com/Ruthvik10/targeting-engine/cache"
 	"github.com/Ruthvik10/targeting-engine/config"
-	"github.com/Ruthvik10/targeting-engine/store"
-	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func main() {
-	cfg, err := config.Load(".")
+var deliveryStore *Delivery
+
+func TestMain(m *testing.M) {
+
+	cfg, err := config.Load("./")
 	if err != nil {
 		log.Fatalf("Error loading the config: %v", err)
 	}
-
 	ctx, cancel2 := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel2()
-
+	// It would be a good idea to connect to test db for testing.
+	// In this project, we are using the same db for test and dev.
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.DBURI))
 	if err != nil {
 		log.Fatalf("Error connecting to the database instance: %v", err)
@@ -40,21 +40,7 @@ func main() {
 		log.Fatal("Could not ping MongoDB: ", err)
 	}
 
-	log.Println("Successfully connected to the database instance")
-
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
-
 	campaignColl := client.Database("campaigns_db").Collection("campaigns")
-
-	deliveryCache := cache.NewDelivery(redisClient)
-	deliveryStore := store.NewDelivery(campaignColl)
-	deliveryHandler := api.NewDeliveryHandler(deliveryStore, deliveryCache)
-
-	mux := http.NewServeMux()
-	deliveryHandler.RegisterRoutes(mux)
-	if err := http.ListenAndServe(cfg.ServerAddr, mux); err != nil {
-		log.Fatalf("Unable to start the http server: %v", err)
-	}
+	deliveryStore = NewDelivery(campaignColl)
+	os.Exit(m.Run())
 }

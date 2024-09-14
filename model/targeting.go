@@ -1,10 +1,10 @@
 package model
 
 type Targeting struct {
-	IncludeApp     []string `bson:"includeApp,omitempty"`
-	ExcludeApp     []string `bson:"excludeApp,omitempty"`
-	IncludeOS      []string `bson:"includeOS,omitempty"`
-	ExcludeOS      []string `bson:"excludeOS,omitempty"`
-	IncludeCountry []string `bson:"includeCountry,omitempty"`
-	ExcludeCountry []string `bson:"excludeCountry,omitempty"`
+	IncludeApp     []string `bson:"includeApp"`
+	ExcludeApp     []string `bson:"excludeApp"`
+	IncludeOS      []string `bson:"includeOS"`
+	ExcludeOS      []string `bson:"excludeOS"`
+	IncludeCountry []string `bson:"includeCountry"`
+	ExcludeCountry []string `bson:"excludeCountry"`
 }

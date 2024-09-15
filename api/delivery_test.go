@@ -18,13 +18,13 @@ import (
 
 // Test cases
 func TestDeliverCampaign(t *testing.T) {
-	// Initialize mocks
-	store := mockStore.NewDeliveryStoreMock()
-	cache := mockCache.NewDeliveryCacheMock()
-
-	handler := NewDeliveryHandler(store, cache, 5*time.Second)
 
 	t.Run("should return 400 when app param is missing", func(t *testing.T) {
+		// Initialize mocks
+		store := mockStore.NewDeliveryStore()
+		cache := mockCache.NewDeliveryCache()
+
+		handler := NewDeliveryHandler(store, cache, 5*time.Second)
 		req, _ := http.NewRequest(http.MethodGet, "/v1/delivery?country=US&os=Android", nil)
 		rec := httptest.NewRecorder()
 
@@ -35,6 +35,11 @@ func TestDeliverCampaign(t *testing.T) {
 	})
 
 	t.Run("should return 400 when country param is missing", func(t *testing.T) {
+		// Initialize mocks
+		store := mockStore.NewDeliveryStore()
+		cache := mockCache.NewDeliveryCache()
+
+		handler := NewDeliveryHandler(store, cache, 5*time.Second)
 		req, _ := http.NewRequest(http.MethodGet, "/v1/delivery?app=com.spotify&os=Android", nil)
 		rec := httptest.NewRecorder()
 
@@ -45,6 +50,11 @@ func TestDeliverCampaign(t *testing.T) {
 	})
 
 	t.Run("should return 400 when os param is missing", func(t *testing.T) {
+		// Initialize mocks
+		store := mockStore.NewDeliveryStore()
+		cache := mockCache.NewDeliveryCache()
+
+		handler := NewDeliveryHandler(store, cache, 5*time.Second)
 		req, _ := http.NewRequest(http.MethodGet, "/v1/delivery?app=com.spotify&country=US", nil)
 		rec := httptest.NewRecorder()
 
@@ -55,10 +65,15 @@ func TestDeliverCampaign(t *testing.T) {
 	})
 
 	t.Run("should return campaigns from cache on cache hit", func(t *testing.T) {
+		// Initialize mocks
+		store := mockStore.NewDeliveryStore()
+		cache := mockCache.NewDeliveryCache()
+
+		handler := NewDeliveryHandler(store, cache, 5*time.Second)
 		campaign1ID := primitive.NewObjectID()
 		campaign2ID := primitive.NewObjectID()
 		// Mock cache hit
-		mockCache.GetCampaignsMock = func(ctx context.Context, key string) (string, error) {
+		cache.GetCampaignsFunc = func(ctx context.Context, key string) (string, error) {
 			campaign1 := &model.Campaign{
 				ID:    campaign1ID,
 				Name:  "Spotify Campaign",
@@ -117,20 +132,26 @@ func TestDeliverCampaign(t *testing.T) {
 	})
 
 	t.Run("should fetch campaigns from DB on cache miss and cache the result", func(t *testing.T) {
+		// Initialize mocks
+		store := mockStore.NewDeliveryStore()
+		cache := mockCache.NewDeliveryCache()
+
+		handler := NewDeliveryHandler(store, cache, 5*time.Second)
+
 		// Mock cache miss and DB hit
 
-		mockCache.GetCampaignsMock = func(ctx context.Context, key string) (string, error) {
+		cache.GetCampaignsFunc = func(ctx context.Context, key string) (string, error) {
 			return "", nil
 		}
 
-		mockCache.SetCampaignMock = func(ctx context.Context, key, value string, exp time.Duration) error {
+		cache.SetCampaignFunc = func(ctx context.Context, key, value string, exp time.Duration) error {
 			return nil
 		}
 
 		campaign1ID := primitive.NewObjectID()
 		campaign2ID := primitive.NewObjectID()
 
-		mockStore.GetCampaignsMock = func(ctx context.Context, in *model.Delivery) ([]*model.Campaign, error) {
+		store.GetCampaignsFunc = func(ctx context.Context, in *model.Delivery) ([]*model.Campaign, error) {
 			campaign1 := &model.Campaign{
 				ID:    campaign1ID,
 				Name:  "Spotify Campaign",
@@ -189,12 +210,19 @@ func TestDeliverCampaign(t *testing.T) {
 	})
 
 	t.Run("should return 204 when no campaigns are found", func(t *testing.T) {
+
+		// Initialize mocks
+		store := mockStore.NewDeliveryStore()
+		cache := mockCache.NewDeliveryCache()
+
+		handler := NewDeliveryHandler(store, cache, 5*time.Second)
+
 		// Mock cache miss and DB hit returning no campaigns
 
-		mockCache.GetCampaignsMock = func(ctx context.Context, key string) (string, error) {
+		cache.GetCampaignsFunc = func(ctx context.Context, key string) (string, error) {
 			return "", nil
 		}
-		mockStore.GetCampaignsMock = func(ctx context.Context, in *model.Delivery) ([]*model.Campaign, error) {
+		store.GetCampaignsFunc = func(ctx context.Context, in *model.Delivery) ([]*model.Campaign, error) {
 			return []*model.Campaign{}, nil
 		}
 		req, _ := http.NewRequest(http.MethodGet, "/v1/delivery?app=com.spotify&os=android&country=uk", nil)
@@ -206,11 +234,18 @@ func TestDeliverCampaign(t *testing.T) {
 	})
 
 	t.Run("should return 500 if DB query fails", func(t *testing.T) {
+
+		// Initialize mocks
+		store := mockStore.NewDeliveryStore()
+		cache := mockCache.NewDeliveryCache()
+
+		handler := NewDeliveryHandler(store, cache, 5*time.Second)
+
 		// Mock cache miss and DB query failure
-		mockCache.GetCampaignsMock = func(ctx context.Context, key string) (string, error) {
+		cache.GetCampaignsFunc = func(ctx context.Context, key string) (string, error) {
 			return "", nil
 		}
-		mockStore.GetCampaignsMock = func(ctx context.Context, in *model.Delivery) ([]*model.Campaign, error) {
+		store.GetCampaignsFunc = func(ctx context.Context, in *model.Delivery) ([]*model.Campaign, error) {
 			return []*model.Campaign{}, errors.New("error")
 		}
 

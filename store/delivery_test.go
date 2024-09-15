@@ -193,3 +193,43 @@ func TestGetCampaigns(t *testing.T) {
 		assert.Empty(t, campaigns)
 	})
 }
+
+// NOTE: Works only on replica sets because mongodb changestream works only on replica sets.
+
+// func TestWatchCampaigns(t *testing.T) {
+// 	newCampaign := model.Campaign{
+// 		Name:   "Mario",
+// 		Image:  "https://somelink/mario.jpg",
+// 		CTA:    "Listen Now",
+// 		Status: "ACTIVE",
+// 		Targeting: model.Targeting{
+// 			IncludeApp:     []string{"com.mario.music"},
+// 			IncludeCountry: []string{"UK", "Australia"},
+// 			IncludeOS:      []string{"iOS", "Android"},
+// 			ExcludeOS:      []string{},
+// 			ExcludeApp:     []string{},
+// 			ExcludeCountry: []string{},
+// 		},
+// 	}
+// 	createCampaigns(t, []interface{}{newCampaign})
+// 	t.Run("Should get the updated campaign on updating the campaign status", func(t *testing.T) {
+// 		filter := bson.D{{Key: "name", Value: "Mario"}}
+// 		update := bson.D{{Key: "$set", Value: bson.D{{Key: "status", Value: "INACTIVE"}}}}
+// 		changedDocCh := make(chan bson.M)
+
+// 		go func(changedDocCh chan bson.M) {
+// 			deliveryStore.WatchCampaign(context.Background(), changedDocCh)
+// 		}(changedDocCh)
+
+// 		err := deliveryStore.collection.FindOneAndUpdate(context.Background(), filter, update).Err()
+// 		assert.NoError(t, err)
+
+// 		updatedDoc := <-changedDocCh
+// 		fullDocument := updatedDoc["fullDocument"].(bson.M)
+// 		status := fullDocument["status"].(string)
+// 		name := fullDocument["name"].(string)
+
+// 		assert.Equal(t, "Mario", name)
+// 		assert.Equal(t, "INACTIVE", status)
+// 	})
+// }

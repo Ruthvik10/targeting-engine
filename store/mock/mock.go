@@ -1,23 +1,25 @@
-package store
+package mock
 
 import (
 	"context"
 
 	"github.com/Ruthvik10/targeting-engine/model"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
-type deliveryStoreMock struct {
+type deliveryStore struct {
+	WatchCampaignFunc func(ctx context.Context, out chan<- bson.M)
+	GetCampaignsFunc  func(ctx context.Context, in *model.Delivery) ([]*model.Campaign, error)
 }
 
-func NewDeliveryStoreMock() *deliveryStoreMock {
-	return &deliveryStoreMock{}
+func NewDeliveryStore() *deliveryStore {
+	return &deliveryStore{}
 }
 
-func (store *deliveryStoreMock) GetCampaigns(ctx context.Context, in *model.Delivery) ([]*model.Campaign, error) {
-	return GetCampaignsMock(ctx, in)
+func (store *deliveryStore) GetCampaigns(ctx context.Context, in *model.Delivery) ([]*model.Campaign, error) {
+	return store.GetCampaignsFunc(ctx, in)
 }
 
-// GetCampaignsMock will be mocked in the handlers.
-var GetCampaignsMock = func(ctx context.Context, in *model.Delivery) ([]*model.Campaign, error) {
-	return nil, nil
+func (store *deliveryStore) WatchCampaign(ctx context.Context, out chan<- bson.M) {
+	store.WatchCampaignFunc(ctx, out)
 }

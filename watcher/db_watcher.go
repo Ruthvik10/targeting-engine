@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/Ruthvik10/targeting-engine/model"
 	"go.mongodb.org/mongo-driver/bson"
@@ -17,8 +16,6 @@ type store interface {
 }
 
 type cache interface {
-	GetCampaigns(ctx context.Context, key string) (string, error)
-	SetCampaign(ctx context.Context, key, value string, exp time.Duration) error
 	CountKeys(ctx context.Context, key string) ([]string, error)
 	DeleteCampaign(ctx context.Context, key string) error
 }

@@ -1,1 +1,1 @@
-GET http://localhost:8080/delivery?app=com.gametion.ludokinggame&country=us&os=android
+GET http://localhost:8080/v1/delivery?app=com.gametion.ludokinggame&country=us&os=android

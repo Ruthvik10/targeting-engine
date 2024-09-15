@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   mongodb:
-    image: mongo # MongoDB alpine image
+    image: mongo
     container_name: mongo-test-container
     restart: always
     environment:
@@ -10,9 +10,10 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: adminpassword
       MONGO_INITDB_DATABASE: campaigns_db
     volumes:
-      - mongo-data:/data/db  # Persist MongoDB data
+      - mongo-data:/data/db
     ports:
-      - "27017:27017"  # Expose MongoDB port
+      - "27017:27017"
+
   redis:
     image: "redis:alpine"
     container_name: "redis-cache"
@@ -22,6 +23,18 @@ services:
     volumes:
       - redis-data:/data
     command: ["redis-server", "--appendonly", "yes"]
+
+  delivery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    container_name: delivery
+    restart: always
+    depends_on:
+      - mongodb
+      - redis
 
 
 volumes:

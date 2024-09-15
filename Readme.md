@@ -23,6 +23,8 @@ To set up and use this project, follow these steps:
    git clone https://github.com/Ruthvik10/targeting-engine.git
    cd targeting-engine
    ```
+2. **Follow the app.env.example and a create an app.env file your root directory with the actual values.**
+
 2. **Build and Start Docker Containers:**
     ```bash
     make compose-up

@@ -7,7 +7,7 @@ type AppConfig struct {
 	ServerAddr     string `mapstructure:"SERVER_ADDR"`
 	RedisURI       string `mapstructure:"REDIS_URI"`
 	RedisCacheExpr int    `mapstructure:"REDIS_CACHE_EXPR"`
-	TestDBSource   string `mapstructure:"TEST_DB_SOURCE"`
+	TestDBURI      string `mapstructure:"TEST_MONGO_URI"`
 }
 
 func Load(path string) (config AppConfig, err error) {

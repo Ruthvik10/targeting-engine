@@ -23,7 +23,7 @@ func TestMain(m *testing.M) {
 	ctx, cancel2 := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel2()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.TestDBSource))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.TestDBURI))
 	if err != nil {
 		log.Fatalf("Error connecting to the database instance: %v", err)
 	}

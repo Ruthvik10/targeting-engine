@@ -16,12 +16,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// Helper function to create a new request
-// func newRequest(app, country, os string) *http.Request {
-// 	req, _ := http.NewRequest(http.MethodGet, "/delivery?app="+app+"&country="+country+"&os="+os, nil)
-// 	return req
-// }
-
 // Test cases
 func TestDeliverCampaign(t *testing.T) {
 	// Initialize mocks
@@ -31,7 +25,7 @@ func TestDeliverCampaign(t *testing.T) {
 	handler := NewDeliveryHandler(store, cache, 5*time.Second)
 
 	t.Run("should return 400 when app param is missing", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "/delivery?country=US&os=Android", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/v1/delivery?country=US&os=Android", nil)
 		rec := httptest.NewRecorder()
 
 		handler.DeliverCampaign(rec, req)
@@ -41,7 +35,7 @@ func TestDeliverCampaign(t *testing.T) {
 	})
 
 	t.Run("should return 400 when country param is missing", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "/delivery?app=com.spotify&os=Android", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/v1/delivery?app=com.spotify&os=Android", nil)
 		rec := httptest.NewRecorder()
 
 		handler.DeliverCampaign(rec, req)
@@ -51,7 +45,7 @@ func TestDeliverCampaign(t *testing.T) {
 	})
 
 	t.Run("should return 400 when os param is missing", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "/delivery?app=com.spotify&country=US", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/v1/delivery?app=com.spotify&country=US", nil)
 		rec := httptest.NewRecorder()
 
 		handler.DeliverCampaign(rec, req)
@@ -99,7 +93,7 @@ func TestDeliverCampaign(t *testing.T) {
 			return string(toReturn), nil
 		}
 
-		req, _ := http.NewRequest(http.MethodGet, "/delivery?app=com.spotify&os=android&country=us", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/v1/delivery?app=com.spotify&os=android&country=us", nil)
 		rec := httptest.NewRecorder()
 
 		handler.DeliverCampaign(rec, req)
@@ -170,7 +164,7 @@ func TestDeliverCampaign(t *testing.T) {
 			return dbCampaigns, nil
 		}
 
-		req, _ := http.NewRequest(http.MethodGet, "/delivery?app=com.spotify&os=android&country=us", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/v1/delivery?app=com.spotify&os=android&country=us", nil)
 		rec := httptest.NewRecorder()
 
 		handler.DeliverCampaign(rec, req)
@@ -194,7 +188,7 @@ func TestDeliverCampaign(t *testing.T) {
 
 	})
 
-	t.Run("should return 404 when no campaigns are found", func(t *testing.T) {
+	t.Run("should return 204 when no campaigns are found", func(t *testing.T) {
 		// Mock cache miss and DB hit returning no campaigns
 
 		mockCache.GetCampaignsMock = func(ctx context.Context, key string) (string, error) {
@@ -203,13 +197,12 @@ func TestDeliverCampaign(t *testing.T) {
 		mockStore.GetCampaignsMock = func(ctx context.Context, in *model.Delivery) ([]*model.Campaign, error) {
 			return []*model.Campaign{}, nil
 		}
-		req, _ := http.NewRequest(http.MethodGet, "/delivery?app=com.spotify&os=android&country=uk", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/v1/delivery?app=com.spotify&os=android&country=uk", nil)
 		rec := httptest.NewRecorder()
 
 		handler.DeliverCampaign(rec, req)
 
-		assert.Equal(t, http.StatusNotFound, rec.Code)
-		assert.JSONEq(t, `{"error": "No campaign exists for the specified parameters!"}`, rec.Body.String())
+		assert.Equal(t, http.StatusNoContent, rec.Code)
 	})
 
 	t.Run("should return 500 if DB query fails", func(t *testing.T) {
@@ -221,7 +214,7 @@ func TestDeliverCampaign(t *testing.T) {
 			return []*model.Campaign{}, errors.New("error")
 		}
 
-		req, _ := http.NewRequest(http.MethodGet, "/delivery?app=com.spotify&os=android&country=uk", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/v1/delivery?app=com.spotify&os=android&country=uk", nil)
 		rec := httptest.NewRecorder()
 
 		handler.DeliverCampaign(rec, req)

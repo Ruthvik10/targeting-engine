@@ -10,6 +10,7 @@ import (
 	"github.com/Ruthvik10/targeting-engine/cache"
 	"github.com/Ruthvik10/targeting-engine/config"
 	"github.com/Ruthvik10/targeting-engine/store"
+	"github.com/Ruthvik10/targeting-engine/watcher"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -54,6 +55,9 @@ func main() {
 	deliveryCache := cache.NewDelivery(redisClient)
 	deliveryStore := store.NewDelivery(campaignColl)
 	deliveryHandler := api.NewDeliveryHandler(deliveryStore, deliveryCache, cacheExpiry)
+
+	dbWatcher := watcher.NewDBWatcher(deliveryStore, deliveryCache)
+	dbWatcher.WatchCampaign(context.Background())
 
 	mux := http.NewServeMux()
 	deliveryHandler.RegisterRoutes(mux)

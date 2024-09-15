@@ -32,7 +32,7 @@ func NewDeliveryHandler(store store, cache cache, cacheExpiry time.Duration) *De
 }
 
 func (h *DeliveryHandler) RegisterRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("GET /delivery", h.DeliverCampaign)
+	mux.HandleFunc("GET /v1/delivery", h.DeliverCampaign)
 }
 
 type DeliveryResponse struct {
@@ -82,7 +82,7 @@ func (h *DeliveryHandler) DeliverCampaign(w http.ResponseWriter, r *http.Request
 		}
 
 		if len(campaigns) == 0 {
-			jsonutil.WriteError(w, http.StatusNotFound, "No campaign exists for the specified parameters!")
+			jsonutil.WriteJSON(w, http.StatusNoContent, "No campaign exists for the specified parameters!")
 			return
 		}
 

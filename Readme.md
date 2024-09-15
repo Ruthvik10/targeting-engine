@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project includes a set of Makefile targets for testing, running the application, and managing Docker Compose. 
+The delivery service sends a list of campaigns to a particular user meeting the targeting rules in terms of app, os and country.
 
 ## Requirements
 

@@ -20,8 +20,8 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatalf("Error loading the config: %v", err)
 	}
-	ctx, cancel2 := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel2()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.TestDBURI))
 	if err != nil {

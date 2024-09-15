@@ -67,50 +67,65 @@ func (h *DeliveryHandler) DeliverCampaign(w http.ResponseWriter, r *http.Request
 	country = queryParams["country"][0]
 	os = queryParams["os"][0]
 
+	ctx := r.Context()
+
+	// Delivery cache key is of the format app:country:os
 	cacheKey := fmt.Sprintf("%s:%s:%s", app, country, os)
 
-	cachedValue, _ := h.cache.GetCampaigns(context.Background(), cacheKey)
+	cachedValue, _ := h.cache.GetCampaigns(ctx, cacheKey)
 
 	campaigns := make([]*model.Campaign, 0)
 	if cachedValue == "" {
 		log.Printf("Cache miss for the key: (%s), quering the database\n", cacheKey)
 		var err error
-		campaigns, err = h.store.GetCampaigns(context.Background(), &model.Delivery{AppID: app, Country: country, OS: os})
+		campaigns, err = h.store.GetCampaigns(ctx, &model.Delivery{AppID: app, Country: country, OS: os})
 		if err != nil {
 			jsonutil.WriteError(w, http.StatusInternalServerError, "Something went wrong while fetching the campaigns!")
 			return
 		}
 
 		if len(campaigns) == 0 {
-			jsonutil.WriteJSON(w, http.StatusNoContent, "No campaign exists for the specified parameters!")
+			jsonutil.WriteJSON(w, http.StatusNoContent, nil)
 			return
 		}
 
-		// Store the fetched data in cache.
-		// If there is any error, do not throw the error to the client since the requested is already available from the database.
+		// Store the data fetched from database, in cache.
+		// If there is any error while writing to the cache, do not throw the error to the client since the requested campaign is already available from the database.
 		bytes, _ := json.Marshal(campaigns)
-		err = h.cache.SetCampaign(context.Background(), cacheKey, string(bytes), h.cacheExpiry)
+		err = h.cache.SetCampaign(ctx, cacheKey, string(bytes), h.cacheExpiry)
 		if err == nil {
-			log.Printf("Added value for the key: (%s) to the cache\n", cacheKey)
+			log.Printf("Added campaign for the key: (%s) to the cache\n", cacheKey)
 		}
 	} else {
 		log.Printf("Cache hit for the key: (%s)\n", cacheKey)
 		err := json.Unmarshal([]byte(cachedValue), &campaigns)
+		// NOTE: This scenario should not happen under normal circumstances.
 		if err != nil {
-			jsonutil.WriteError(w, http.StatusInternalServerError, "Something went wrong!")
-			return
+			log.Printf("Error marshalling the campaign data for the key (%s): %v", cacheKey, err)
+			log.Println("Querying the database")
+			campaigns, err = h.store.GetCampaigns(ctx, &model.Delivery{AppID: app, Country: country, OS: os})
+			if err != nil {
+				jsonutil.WriteError(w, http.StatusInternalServerError, "Something went wrong while fetching the campaigns!")
+				return
+			}
+
+			if len(campaigns) == 0 {
+				jsonutil.WriteJSON(w, http.StatusNoContent, nil)
+				return
+			}
+
 		}
 	}
 
-	out := make([]*DeliveryResponse, 0)
+	toReturn := make([]*DeliveryResponse, 0)
 
 	for _, c := range campaigns {
-		out = append(out, &DeliveryResponse{
+		toReturn = append(toReturn, &DeliveryResponse{
 			CID:   c.ID.Hex(),
 			Image: c.Image,
 			CTA:   c.CTA,
 		})
 	}
 
-	jsonutil.WriteJSON(w, http.StatusOK, out)
+	jsonutil.WriteJSON(w, http.StatusOK, toReturn)
 }

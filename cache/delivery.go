@@ -37,10 +37,15 @@ func (c *Delivery) SetCampaign(ctx context.Context, key, value string, exp time.
 	if err != nil {
 		log.Printf("Error unmarshalling campaigns: %v\n", err)
 	}
+
+	// We maintain two caches.
+	// One is a cache with key "campaign:campaignID" and value which is a set [app1:country1:os2, app1:country2:os1].
+	// Second is the a cache with key "app:country:os" and value which is "[campaign1, campaign2]"
+	// The first cache is useful during the deletion process to identify all the deliveries that a campaign serves and delete it, for ex, when a campaign becomes inactive.
 	for _, campaign := range campaigns {
 		campaignKey := fmt.Sprintf("campaign:%s", campaign.ID)
 		// Add the cache key to the set for this campaign
-		c.client.SAdd(context.Background(), campaignKey, key)
+		c.client.SAdd(ctx, campaignKey, key)
 	}
 	err = c.client.Set(ctx, key, value, exp).Err()
 	if err != nil {

@@ -52,7 +52,7 @@ func (store *Delivery) GetCampaigns(ctx context.Context, delivery *model.Deliver
 
 	cursor, err := store.collection.Find(ctx, filter, findOptions)
 	if err != nil {
-		log.Printf("Error fetching the campaigns from the database: %v", err)
+		log.Printf("Error fetching the campaigns from the database: %v\n", err)
 		return nil, err
 	}
 	var campaigns []*model.Campaign
@@ -61,7 +61,7 @@ func (store *Delivery) GetCampaigns(ctx context.Context, delivery *model.Deliver
 	for cursor.Next(ctx) {
 		var campaign model.Campaign
 		if err := cursor.Decode(&campaign); err != nil {
-			log.Printf("Error decoding the campaign cursor values: %v", err)
+			log.Printf("Error decoding the campaign cursor values: %v\n", err)
 			return nil, err
 		}
 		campaigns = append(campaigns, &campaign)
@@ -69,13 +69,15 @@ func (store *Delivery) GetCampaigns(ctx context.Context, delivery *model.Deliver
 
 	// Check if any error occurred during iteration
 	if err := cursor.Err(); err != nil {
-		log.Printf("Error fetching the campaigns from the database: %v", err)
+		log.Printf("Error fetching the campaigns from the database: %v\n", err)
 		return nil, err
 	}
 	return campaigns, nil
 }
 
 func (store *Delivery) WatchCampaign(ctx context.Context, out chan<- bson.M) {
+
+	// Only listen to update operations on the campaign collection and fetch the document only if the status has changed to INACTIVE
 	matchPipeline := bson.D{
 		{
 			Key: "$match", Value: bson.D{

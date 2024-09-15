@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/Ruthvik10/targeting-engine/model"
@@ -111,7 +110,6 @@ func TestGetCampaigns(t *testing.T) {
 			OS:      "Android",
 		}
 		campaigns, err := deliveryStore.GetCampaigns(context.Background(), &query)
-		fmt.Println(campaigns)
 		assert.NoError(t, err)
 		assert.Equal(t, "TuneUp - Your Music Companion", campaigns[0].Name)
 	})
@@ -124,7 +122,6 @@ func TestGetCampaigns(t *testing.T) {
 			OS:      "iOS",
 		}
 		campaigns, err := deliveryStore.GetCampaigns(context.Background(), &query)
-		fmt.Println(campaigns)
 		assert.NoError(t, err)
 		assert.Empty(t, campaigns)
 	})
@@ -149,7 +146,6 @@ func TestGetCampaigns(t *testing.T) {
 			OS:      "Android",
 		}
 		campaigns, err := deliveryStore.GetCampaigns(context.Background(), &query)
-		fmt.Println(campaigns)
 		assert.NoError(t, err)
 		assert.Empty(t, campaigns)
 	})
@@ -162,7 +158,6 @@ func TestGetCampaigns(t *testing.T) {
 			OS:      "Android",
 		}
 		campaigns, err := deliveryStore.GetCampaigns(context.Background(), &query)
-		fmt.Println(campaigns)
 		assert.NoError(t, err)
 		assert.Empty(t, campaigns)
 	})
@@ -175,7 +170,6 @@ func TestGetCampaigns(t *testing.T) {
 			OS:      "iOS",
 		}
 		campaigns, err := deliveryStore.GetCampaigns(context.Background(), &query)
-		fmt.Println(campaigns)
 		assert.NoError(t, err)
 		assert.Empty(t, campaigns)
 	})
@@ -188,7 +182,6 @@ func TestGetCampaigns(t *testing.T) {
 			OS:      "iOS",
 		}
 		campaigns, err := deliveryStore.GetCampaigns(context.Background(), &query)
-		fmt.Println(campaigns)
 		assert.NoError(t, err)
 		assert.Empty(t, campaigns)
 	})

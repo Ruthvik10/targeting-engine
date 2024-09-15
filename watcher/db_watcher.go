@@ -47,16 +47,16 @@ func handleCampaignUpdate(ctx context.Context, event bson.M, cache cache) {
 	status := fullDocument["status"].(string)
 
 	if status == "INACTIVE" {
-		// Fetch all cache keys associated with this campaign
+		// Fetch all delivery cache keys (app:country:os) associated with this campaign
 		campaignKey := fmt.Sprintf("campaign:%s", campaignID)
-		cacheKeys, err := cache.CountKeys(ctx, campaignKey)
+		deliveryCacheKeys, err := cache.CountKeys(ctx, campaignKey)
 		if err != nil {
 			log.Printf("Error fetching cache keys for campaign: %v", err)
 			return
 		}
 
 		// Invalidate each cache key
-		for _, cacheKey := range cacheKeys {
+		for _, cacheKey := range deliveryCacheKeys {
 			err := cache.DeleteCampaign(ctx, cacheKey)
 			if err != nil {
 				log.Printf("Failed to delete cache key: %v", cacheKey)
